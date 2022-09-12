@@ -1,6 +1,4 @@
 // module now is using file rather than database
-const fs = require('fs');
-const path = require('path');
 
 const dataFilePath = path.join(__dirname, '../', 'data', 'products.json');
 
