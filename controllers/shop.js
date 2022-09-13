@@ -1,25 +1,26 @@
 const Product = require("../models/product");
 const Cart = require("../models/cart");
 
-
 exports.getProductPage = (req, res, next) => {
     // the controller takes the result from the product model and display it to the user
-    Product.fetchAll().then((products) => {
-        res.render('shop/product-list', {
-            title : "Shop",
-            prods : products,
-            path : "/products"
-        }); 
+    req.user.getProducts()
+        .then((products) => {
+            res.render('shop/product-list', {
+                title : "Shop",
+                prods : products,
+                path : "/products"
+            }); 
     })
 };
 
 exports.getProductDetail = (req, res, next) => {
-    Product.getProductById(req.params.productId).then((product) => {
-        res.render('shop/product-detail', {
-            title: "Product detail",
-            prods: product,
-            path: "/products"
-        });
+    req.user.getProducts({where : {id : req.params.productId}})
+        .then((product) => {
+            res.render('shop/product-detail', {
+                title: product[0].title,
+                prods: product[0],
+                path: "/products"
+            });
     });
 }
 
@@ -31,6 +32,13 @@ exports.getIndexPage = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
+    req.user.getCart()
+        .then(cart => {
+            console.log(cart);
+        })
+        .catch(err => {
+            console.log(err);
+        })
     res.render('shop/cart', {
         title: "Your Cart",
         path : "/cart"

@@ -10,27 +10,46 @@ exports.getAddProductPage = (req, res, next) => {
 
 exports.postProduct = (req, res, next) => {
     // controller handle input from the client and update those input to the product model
-    const product = new Product(null, req.body.title, req.body.price);
-    product.save();
-    res.redirect('/admin/products');
+    const inputTitle = req.body.title;
+    const inputPrice = req.body.price;
+    req.user.createProduct({
+        title: inputTitle,
+        price: inputPrice
+    })
+    .then(result => {
+        res.redirect('/');
+    })
+    .catch(err => {
+        console.log(err);
+    });
 };
 
 exports.postEditProduct = (req, res, next) => {
-    const editProduct = new Product(req.body.productId, req.body.title, req.body.price);
-    editProduct.save();
-    res.redirect('/admin/products');
+    Product.findByPk(req.body.productId)
+        .then((product) => {
+            product.title = req.body.title;
+            product.price = req.body.price;
+            product.save();
+            res.redirect('/admin/products');
+        })
 }
 
 exports.postDeleteProduct = (req, res, next) => {
     const targetId = req.body.productId;
-    Product.delete(targetId);
-    res.redirect('/admin/products');
+    Product.findByPk(targetId)
+        .then(product => {
+            product.destroy();
+            res.redirect('/admin/products');            
+        })
+        .catch(err => {
+            console.log(err);
+        });
 }
 
 exports.getEditProductPage = (req, res, next) => {
     const editMode = req.query.edit;
     const editId = req.params.productId;
-    Product.getProductById(editId).then(product => {
+    Product.findByPk(editId).then(product => {
         if (!product) {
             res.redirect('/');
         }
@@ -44,11 +63,13 @@ exports.getEditProductPage = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-    Product.fetchAll().then((products) => {
-        res.render('admin/products', {
-            title : "Admin Shop",
-            prods : products,
-            path : "/admin/products"
-        }); 
-    })
+    req.user.getProducts()
+        .then(products => {
+            console.log(products);
+            res.render('admin/products', {
+                title : "Admin Shop",
+                prods : products,
+                path : "/admin/products"
+            }); 
+        })
 };

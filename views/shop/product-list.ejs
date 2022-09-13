@@ -18,8 +18,8 @@
         <% } else { %>
             <table>
                 <tr>
-                <% for (let key in prods[0]) { %>
-                    <% if (key !== 'id') { %>
+                <% for (let key in prods[0].dataValues) { %>
+                    <% if (key === 'title'|| key === 'price') { %>
                     <td><%= `${key.toUpperCase()}` %></td> 
                     <% } %>
                 <% } %>
@@ -27,8 +27,8 @@
 
                 <% for (let product of prods) { %>
                     <tr>
-                        <% for (let key in product) { %>
-                            <% if (key !== 'id') { %>
+                        <% for (let key in product.dataValues) { %>
+                            <% if (key === 'title' || key === 'price') { %>
                                 <td><%= `${product[key]}${key === 'price' ? '$' : ''}` %></td> 
                             <% } %>
                         <% } %>
