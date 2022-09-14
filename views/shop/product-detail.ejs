@@ -8,12 +8,14 @@
     <link href="/css/main.css" rel="stylesheet">
 </head>
 <body>
-    <%- include('../includes/nav.ejs') %>
+    <%- include('../includes/nav.ejs', {isAuthenticated : isAuthenticated}) %>
 
     <main>
         <h1>Product: <%= prods.title %></h1>
         <p>Price: <%= prods.price %>$</p>
-        <%- include('../includes/add-to-cart.ejs', {product : prods}) %>
+        <% if (isAuthenticated) { %>
+            <%- include('../includes/add-to-cart.ejs', {product : prods}) %>
+        <% } %>
     </main>
 </body>
 </html>

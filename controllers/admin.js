@@ -4,7 +4,8 @@ exports.getAddProductPage = (req, res, next) => {
     res.render('admin/edit-product', {
         title: "Add-product",
         path : "/admin/add-product",
-        editing: "false"
+        editing: "false",
+        isAuthenticated: req.session.isAuthenticated
     });
 };
 
@@ -30,6 +31,7 @@ exports.postEditProduct = (req, res, next) => {
             product.title = req.body.title;
             product.price = req.body.price;
             product.save();
+            res.setHeader('Set-Cookie', 'loggedIn=true');
             res.redirect('/admin/products');
         })
 }
@@ -57,7 +59,8 @@ exports.getEditProductPage = (req, res, next) => {
             title: "Edit-product",
             path : "/admin/edit-product",
             editing: editMode,
-            product: product
+            product: product,
+            isAuthenticated: req.session.isAuthenticated
         });
     })
 };
@@ -65,11 +68,11 @@ exports.getEditProductPage = (req, res, next) => {
 exports.getProducts = (req, res, next) => {
     req.user.getProducts()
         .then(products => {
-            console.log(products);
             res.render('admin/products', {
                 title : "Admin Shop",
                 prods : products,
-                path : "/admin/products"
+                path : "/admin/products",
+                isAuthenticated: req.session.isAuthenticated
             }); 
         })
 };

@@ -8,7 +8,7 @@
     <link href="/css/main.css" rel="stylesheet">
 </head>
 <body>
-    <%- include('../includes/nav.ejs') %>
+    <%- include('../includes/nav.ejs', {isAuthenticated : isAuthenticated}) %>
 
     <main>
         <h1>My Product</h1>
@@ -34,7 +34,9 @@
                         <% } %>
                         <td class="add-to-cart">
                             <button><a href="/products/<%= product.id %>">Details</a></button>
-                            <%- include('../includes/add-to-cart.ejs', {product : product}) %>
+                            <% if (isAuthenticated) { %>
+                                <%- include('../includes/add-to-cart.ejs', {product : product}) %>
+                            <% } %>
                         </td>
                     </tr>
                 <% } %>

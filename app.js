@@ -1,9 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const session = require('express-session');
+let Sequelize = require("sequelize");
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 
 const errorController = require('./controllers/error');
 const sequelize = require('./utils/database');
@@ -12,6 +15,8 @@ const Product = require('./models/product');
 const User = require('./models/user');
 const Cart = require('./models/cart');
 const CartItem = require('./models/cartItem');
+const Order = require('./models/order');
+const OrderItem = require('./models/order-item');
 
 const PORT = 3000;
 const app = express();
@@ -32,25 +37,46 @@ app.use('/', (req, res, next) => {
         }) 
 })
 
+let SequelizeStore = require("connect-session-sequelize")(session.Store);
+
+let sessionStore = new SequelizeStore({
+    db: sequelize,
+  }); 
+
+app.use(
+  session({
+    secret: "mysecret",
+    store: sessionStore,
+    resave: false,
+    proxy: true, 
+  })
+);
+
+sessionStore.sync()
+
 // template engine configuration
 app.set("view engine", "ejs");
 app.set("views", "views");
 
 app.use('/admin', adminRoutes);
+app.use('/auth', authRoutes);
 app.use('/', shopRoutes);
 
 // error route
 app.use('/', errorController.getErrorPage);
 
-Product.belongsTo(User, { constraints : true, onDelete : 'CASCADE' });
+Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 User.hasMany(Product);
 User.hasOne(Cart);
 Cart.belongsTo(User);
-Cart.belongsToMany(Product, { through : CartItem });
-Product.belongsToMany(Cart, { through : CartItem });
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
+Order.belongsTo(User);
+User.hasMany(Order);
+Order.belongsToMany(Product, { through: OrderItem });
 
 sequelize
-    .sync({force : true})
+    .sync()
     .then(result => {
         return User.findByPk(1);
     })
